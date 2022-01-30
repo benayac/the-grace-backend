@@ -72,6 +72,26 @@ func IsAuthorizedUser(endpoint func(http.ResponseWriter, *http.Request)) http.Ha
 	}
 }
 
+func IsAuthorizedAdmin(endpoint func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println("[AUTHENTICATION USER][REQUEST]")
+		if r.Header["Authorization"] != nil {
+			valid, err := verifyAuth(r.Header, audAdmin)
+			if err != nil {
+				log.Println("[AUTHENTICATION USER][ERROR] PARSING HEADER: ", err.Error())
+				res := DefaultResponse{Status: false, Error: err.Error()}
+				json.NewEncoder(w).Encode(&res)
+			}
+			if valid {
+				endpoint(w, r)
+			}
+		} else {
+			res := DefaultResponse{Status: false, Error: "Invalid authorization"}
+			json.NewEncoder(w).Encode(&res)
+		}
+	}
+}
+
 func ParseAuth(header map[string][]string, key string) (string, error) {
 	bearer := strings.Split(header["Authorization"][0], "Bearer ")[1]
 	bearer = strings.TrimSpace(bearer)
