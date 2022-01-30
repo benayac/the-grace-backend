@@ -24,7 +24,7 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	middleware.ReturnResponseWriter(nil, w, getProfileResponse{
-		Message: "Get Profile Success",
+		Message: "Get profile Success",
 		Profile: profile,
 	}, "[GET PROFILE][SUCCESS]")
 }
