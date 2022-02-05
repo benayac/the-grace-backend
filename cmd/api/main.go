@@ -11,17 +11,18 @@ import (
 	"thegrace/pkg/middleware"
 	"thegrace/pkg/services/account"
 	"thegrace/pkg/services/admin"
+	"thegrace/pkg/services/ibadah"
 	"thegrace/pkg/services/profile"
 )
 
 func init() {
-	profile := os.Getenv("ENVIRONMENT")
-	if profile == "LOCAL" {
+	prof := os.Getenv("ENVIRONMENT")
+	if prof == "LOCAL" {
 		err := pkg.GetConfigJson()
 		if err != nil {
 			panic(err)
 		}
-	} else if profile == "DOCKER" {
+	} else if prof == "DOCKER" {
 		err := pkg.GetConfigEnv()
 		if err != nil {
 			panic(err)
@@ -37,12 +38,12 @@ func main() {
 	fmt.Println("Running Web Service. . .")
 	r := mux.NewRouter()
 	r = r.PathPrefix("/api/v1").Subrouter()
-	r = handleRouter(r)
+	r = handler(r)
 	r.Use(middleware.DefaultHeader)
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
-func handleRouter(r *mux.Router) *mux.Router {
+func handler(r *mux.Router) *mux.Router {
 	accountRouter := r.PathPrefix("/user").Subrouter()
 	accountRouter.HandleFunc("/register", account.RegisterAccountHandler).Methods("POST")
 	accountRouter.HandleFunc("/login", account.LoginHandler).Methods("POST")
@@ -51,7 +52,17 @@ func handleRouter(r *mux.Router) *mux.Router {
 	accountRouter.HandleFunc("/profile", middleware.IsAuthorizedUser(profile.GetProfile)).Methods("GET")
 	accountRouter.HandleFunc("/profile/edit", middleware.IsAuthorizedUser(profile.EditProfile)).Methods("POST")
 
+	ibadahRouter := r.PathPrefix("/ibadah").Subrouter()
+	ibadahRouter.HandleFunc("/khotbah/latest", ibadah.GetLatestIbadah).Methods("GET")
+	ibadahRouter.HandleFunc("/khotbah/list", ibadah.GetListKhotbah).Methods("GET")
+
 	adminRouter := r.PathPrefix("/admin").Subrouter()
 	adminRouter.HandleFunc("/login", admin.LoginAdmin).Methods("POST")
+	adminRouter.HandleFunc("/account/list", middleware.IsAuthorizedAdmin(admin.GetAccountList)).Methods("GET")
+	adminRouter.HandleFunc("/account/edit", middleware.IsAuthorizedAdmin(admin.EditProfile)).Methods("POST")
+	adminRouter.HandleFunc("/account/delete", middleware.IsAuthorizedAdmin(admin.DeleteAccount)).Methods("GET")
+	adminRouter.HandleFunc("/khotbah/add", middleware.IsAuthorizedAdmin(admin.AddNewKhotbah)).Methods("POST")
+	adminRouter.HandleFunc("/khotbah/list", admin.GetListKhotbah).Methods("GET")
+	adminRouter.HandleFunc("/khotbah/edit", middleware.IsAuthorizedAdmin(admin.EditKhotbah)).Methods("POST")
 	return r
 }
