@@ -2,30 +2,11 @@ package ibadah
 
 import (
 	"database/sql"
-	"encoding/json"
 	"log"
 	"net/http"
 	"thegrace/pkg/db"
 	"thegrace/pkg/middleware"
 )
-
-func AddNewKhotbah(w http.ResponseWriter, r *http.Request) {
-	log.Println("[ADD KHOTBAH][REQUEST]")
-
-	decoder := json.NewDecoder(r.Body)
-	var req addKhotbahRequest
-	err := decoder.Decode(&req)
-	if err != nil {
-		middleware.ReturnResponseWriter(err, w, nil, "[ADD KHOTBAH][ERROR] DECODE REQUEST:")
-		return
-	}
-	_, err = db.DB.Exec(insertKhotbah, req.Thumbnail, req.Title, req.Link, req.PendetaName, req.IbadahDate, req.LinkWarta)
-	if err != nil {
-		middleware.ReturnResponseWriter(err, w, addKhotbahResponse{Message: "Failed to add khotbah"}, "[ADD KHOTBAH][ERROR] INSERT TO DB:")
-		return
-	}
-	middleware.ReturnResponseWriter(nil, w, addKhotbahResponse{Message: "Success to add khotbah"}, "[ADD KHOTBAH][SUCCESS]")
-}
 
 func GetLatestIbadah(w http.ResponseWriter, r *http.Request) {
 	log.Println("[GET LATEST KHOTBAH][REQUEST]")

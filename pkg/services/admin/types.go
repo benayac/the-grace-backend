@@ -7,8 +7,11 @@ import (
 const (
 	getPasswordAdmin  = `SELECT password FROM admins WHERE username = $1`
 	getAccountList    = `SELECT id, first_name, last_name, email, phone_number, gender, birth_date, is_verified, tag FROM accounts`
-	editUserProfile   = `UPDATE accounts SET first_name = $1, last_name = $2, email = $3, phone_number = $4, gender = $5, birth_date = $6, is_verified = $7, tag = $8, updated_at = now() WHERE id = $9`
+	editUserProfile   = `UPDATE accounts SET first_name = $1, last_name = $2, email = $3, phone_number = $4, gender = $5, birth_date = $6, is_verified = $7, tag = $8WHERE id = $9`
 	deleteUserProfile = `DELETE FROM accounts WHERE id = $1`
+	insertKhotbah     = `INSERT INTO khotbah (thumbnail, title, link, pendeta_name, ibadah_date, link_warta) VALUES ($1, $2, $3, $4, $5, $6)`
+	getKhotbahList    = `SELECT * FROM KHOTBAH`
+	editKhotbah       = `UPDATE khotbah SET thumbnail = $1, title = $2, link = $3, pendeta_name = $4, ibadah_date = $5, link_warta = $6, WHERE id = $7`
 )
 
 type (
@@ -40,6 +43,42 @@ type (
 	}
 
 	editProfileResponse struct {
+		Message string `json:"message"`
+	}
+
+	deleteProfileResponse struct {
+		Message string `json:"message"`
+	}
+
+	addKhotbahRequest struct {
+		Thumbnail   string `json:"thumbnail"`
+		Title       string `json:"title"`
+		Link        string `json:"link"`
+		PendetaName string `json:"pendeta_name"`
+		IbadahDate  string `json:"ibadah_date"`
+		LinkWarta   string `json:"link_warta"`
+	}
+
+	addKhotbahResponse struct {
+		Message string `json:"message"`
+	}
+
+	khotbah struct {
+		Id          int    `json:"id"`
+		Thumbnail   string `json:"thumbnail"`
+		Title       string `json:"title"`
+		Link        string `json:"link"`
+		PendetaName string `json:"pendeta_name"`
+		IbadahDate  string `json:"ibadah_date"`
+		LinkWarta   string `json:"link_warta"`
+	}
+
+	getKhotbahListResponse struct {
+		Message string    `json:"message"`
+		Khotbah []khotbah `json:"khotbah_list"`
+	}
+
+	editKhotbahResponse struct {
 		Message string `json:"message"`
 	}
 )

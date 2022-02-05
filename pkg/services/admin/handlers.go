@@ -83,3 +83,80 @@ func EditProfile(w http.ResponseWriter, r *http.Request) {
 
 	middleware.ReturnResponseWriter(nil, w, editProfileResponse{Message: "Success edit profile."}, "[ADMIN EDIT PROFILE][SUCCESS]")
 }
+
+func DeleteAccount(w http.ResponseWriter, r *http.Request) {
+	log.Println("[ADMIN DELETE ACCOUNT][REQUEST]")
+	accountId := r.FormValue("id")
+
+	if accountId == "" {
+		middleware.ReturnResponseWriter(nil, w, deleteProfileResponse{Message: "Failed to delete account"}, "[ADMIN DELETE ACCOUNT][ERROR] NO ID")
+		return
+	}
+
+	_, err := db.DB.Exec(deleteUserProfile, accountId)
+
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, deleteProfileResponse{Message: "Failed to delete account."}, "[ADMIN DELETE ACCOUNT][ERROR] EXECUTE DB")
+		return
+	}
+
+	middleware.ReturnResponseWriter(nil, w, deleteProfileResponse{Message: "Success delete account."}, "[ADMIN DELETE ACCOUNT][SUCCESS]")
+}
+
+func AddNewKhotbah(w http.ResponseWriter, r *http.Request) {
+	log.Println("[ADD KHOTBAH][REQUEST]")
+
+	decoder := json.NewDecoder(r.Body)
+	var req addKhotbahRequest
+	err := decoder.Decode(&req)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, nil, "[ADD KHOTBAH][ERROR] DECODE REQUEST:")
+		return
+	}
+	_, err = db.DB.Exec(insertKhotbah, req.Thumbnail, req.Title, req.Link, req.PendetaName, req.IbadahDate, req.LinkWarta)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, addKhotbahResponse{Message: "Failed to add khotbah"}, "[ADD KHOTBAH][ERROR] INSERT TO DB:")
+		return
+	}
+	middleware.ReturnResponseWriter(nil, w, addKhotbahResponse{Message: "Success to add khotbah"}, "[ADD KHOTBAH][SUCCESS]")
+}
+
+func GetListKhotbah(w http.ResponseWriter, r *http.Request) {
+	log.Println("[ADMIN GET LIST KHOTBAH][REQUEST]")
+	row, err := db.DB.Query(getKhotbahList)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, getKhotbahListResponse{Message: "Failed to get khotbah list"}, "[ADMIN GET LIST KHOTBAH][ERROR] QUERY DATA DB:")
+		return
+	}
+	var list []khotbah
+	var khotbah khotbah
+	for row.Next() {
+		err = row.Scan(&khotbah.Id, &khotbah.Thumbnail, &khotbah.Title, &khotbah.Link, &khotbah.PendetaName, &khotbah.IbadahDate, &khotbah.LinkWarta)
+		if err != nil {
+			middleware.ReturnResponseWriter(err, w, getKhotbahListResponse{Message: "Failed to get khotbah list"}, "[ADMIN GET LIST KHOTBAH][ERROR] QUERY ROW DB:")
+			return
+		}
+		list = append(list, khotbah)
+	}
+	middleware.ReturnResponseWriter(nil, w, getKhotbahListResponse{Message: "Success to get khotbah list", Khotbah: list}, "[ADMIN GET LIST KHOTBAH][SUCCESS]")
+}
+
+func EditKhotbah(w http.ResponseWriter, r *http.Request) {
+	log.Println("[ADMIN EDIT KHOTBAH][REQUEST]")
+
+	decoder := json.NewDecoder(r.Body)
+	var req khotbah
+	err := decoder.Decode(&req)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, editProfileResponse{Message: "Failed to edit khotbah"}, "[ADMIN EDIT KHOTBAH][ERROR] DECODE REQUEST")
+		return
+	}
+
+	_, err = db.DB.Exec(editKhotbah, req.Thumbnail, req.Title, req.Link, req.PendetaName, req.IbadahDate, req.LinkWarta, req.Id)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, editProfileResponse{Message: "Failed to edit khotbah"}, "[ADMIN EDIT KHOTBAH][ERROR] EXEC DB")
+		return
+	}
+
+	middleware.ReturnResponseWriter(nil, w, editProfileResponse{Message: "Success to edit khotbah"}, "[ADMIN EDIT KHOTBAH][SUCCESS]")
+}

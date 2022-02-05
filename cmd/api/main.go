@@ -16,13 +16,13 @@ import (
 )
 
 func init() {
-	profile := os.Getenv("ENVIRONMENT")
-	if profile == "LOCAL" {
+	prof := os.Getenv("ENVIRONMENT")
+	if prof == "LOCAL" {
 		err := pkg.GetConfigJson()
 		if err != nil {
 			panic(err)
 		}
-	} else if profile == "DOCKER" {
+	} else if prof == "DOCKER" {
 		err := pkg.GetConfigEnv()
 		if err != nil {
 			panic(err)
@@ -60,7 +60,9 @@ func handler(r *mux.Router) *mux.Router {
 	adminRouter.HandleFunc("/login", admin.LoginAdmin).Methods("POST")
 	adminRouter.HandleFunc("/account/list", middleware.IsAuthorizedAdmin(admin.GetAccountList)).Methods("GET")
 	adminRouter.HandleFunc("/account/edit", middleware.IsAuthorizedAdmin(admin.EditProfile)).Methods("POST")
-	adminRouter.HandleFunc("/khotbah", middleware.IsAuthorizedAdmin(ibadah.AddNewKhotbah)).Methods("POST")
-
+	adminRouter.HandleFunc("/account/delete", middleware.IsAuthorizedAdmin(admin.DeleteAccount)).Methods("GET")
+	adminRouter.HandleFunc("/khotbah/add", middleware.IsAuthorizedAdmin(admin.AddNewKhotbah)).Methods("POST")
+	adminRouter.HandleFunc("/khotbah/list", admin.GetListKhotbah).Methods("GET")
+	adminRouter.HandleFunc("/khotbah/edit", middleware.IsAuthorizedAdmin(admin.EditKhotbah)).Methods("POST")
 	return r
 }
