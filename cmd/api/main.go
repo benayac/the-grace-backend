@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"os"
 	"thegrace/pkg"
 	"thegrace/pkg/db"
 	"thegrace/pkg/middleware"
@@ -31,7 +32,11 @@ func main() {
 	r = r.PathPrefix("/api/v1").Subrouter()
 	r = handler(r)
 	r.Use(middleware.DefaultHeader)
-	log.Fatal(http.ListenAndServe(":8080", r))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = ":8080" // Default port if not specified
+	}
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
 func handler(r *mux.Router) *mux.Router {
