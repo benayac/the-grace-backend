@@ -9,5 +9,3 @@ services:
       - "8080:8080"
     environment:
       - ENVIRONMENT=DOCKER
-    env_file:
-      - ./local.env
