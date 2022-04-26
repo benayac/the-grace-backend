@@ -1,0 +1,11 @@
+{
+  "name": "The Grace Backend",
+  "description": "The Grace Backend",
+  "keywords": [
+    "go",
+    "postgresql"
+  ],
+  "addons": [
+    "heroku-postgresql"
+  ]
+}
