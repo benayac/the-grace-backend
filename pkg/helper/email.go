@@ -17,6 +17,7 @@ func defaultSetting(username string, password string) (*mail.SMTPClient, error) 
 	return smtpClient, err
 }
 
+/**
 func SendEmail(username string, password string, to string, subject string, body string) error {
 	server, err := defaultSetting(username, password)
 	if err != nil {
@@ -34,3 +35,5 @@ func SendEmail(username string, password string, to string, subject string, body
 	}
 	return nil
 }
+
+*/

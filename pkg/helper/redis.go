@@ -1,11 +1,11 @@
 package helper
 
+/**
 import (
 	"github.com/go-redis/redis"
 	"thegrace/pkg"
 	"time"
 )
-
 var redisClient *redis.Client
 
 func getRedisClient() *redis.Client {
@@ -37,3 +37,4 @@ func GetValue(key string) (string, error) {
 	}
 	return value, nil
 }
+*/

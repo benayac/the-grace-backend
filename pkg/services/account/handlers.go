@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"thegrace/pkg"
 	"thegrace/pkg/db"
 	"thegrace/pkg/helper"
 	"thegrace/pkg/middleware"
@@ -33,21 +32,22 @@ func RegisterAccountHandler(w http.ResponseWriter, r *http.Request) {
 		middleware.ReturnResponseWriter(err, w, registerResponse{Message: "Failed to register"}, "[REGISTER ACCOUNT][ERROR] INSERT TO DB:")
 		return
 	}
-	otp, err := helper.GenerateOTP(req.Email)
+	//otp, err := helper.GenerateOTP(req.Email)
 	if err != nil {
 		log.Println("[REGISTER ACCOUNT][ERROR] GENERATE OTP:" + err.Error())
 		return
 	}
-	go func() {
-		err = helper.SendEmail(pkg.Conf.Email, pkg.Conf.EmailPassword, req.Email, "OTP", otp)
-		if err != nil {
-			log.Println("[REGISTER ACCOUNT][ERROR] SENDING EMAIL:" + err.Error())
-		}
-		log.Println("[REGISTER ACCOUNT][EMAIL SENT]")
-	}()
+	//go func() {
+	//	err = helper.SendEmail(pkg.Conf.Email, pkg.Conf.EmailPassword, req.Email, "OTP", otp)
+	//	if err != nil {
+	//		log.Println("[REGISTER ACCOUNT][ERROR] SENDING EMAIL:" + err.Error())
+	//	}
+	//	log.Println("[REGISTER ACCOUNT][EMAIL SENT]")
+	//}()
 	middleware.ReturnResponseWriter(nil, w, registerResponse{Message: "Register Success"}, "[REGISTER ACCOUNT][SUCCESS]")
 }
 
+/**
 func ResendOTPHandler(w http.ResponseWriter, r *http.Request) {
 	var req resendOtpRequest
 	decoder := json.NewDecoder(r.Body)
@@ -101,6 +101,8 @@ func ValidateOTPHandler(w http.ResponseWriter, r *http.Request) {
 
 	middleware.ReturnResponseWriter(nil, w, otpResponse{Message: "Verification Success"}, "[VALIDATE OTP][SUCCESS]")
 }
+
+*/
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("[LOGIN][REQUEST]")

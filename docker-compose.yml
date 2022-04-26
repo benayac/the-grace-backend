@@ -1,31 +1,13 @@
 version: '3'
 
 services:
-  go-service:
+  go-service-stag:
     build:
       context: .
       dockerfile: Dockerfile
-    depends_on:
-      - database
-      - redis
     ports:
       - "8080:8080"
     environment:
       - ENVIRONMENT=DOCKER
     env_file:
       - ./local.env
-
-  database:
-    container_name: database
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: "gouser"
-      POSTGRES_DB: "example"
-      POSTGRES_HOST_AUTH_METHOD: "trust"
-    ports:
-      - "5432:5432"
-  redis:
-    container_name: redis
-    image: redis:6.2.6
-    ports:
-      - "6379:6379"

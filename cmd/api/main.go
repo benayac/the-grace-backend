@@ -47,8 +47,8 @@ func handler(r *mux.Router) *mux.Router {
 	accountRouter := r.PathPrefix("/user").Subrouter()
 	accountRouter.HandleFunc("/register", account.RegisterAccountHandler).Methods("POST")
 	accountRouter.HandleFunc("/login", account.LoginHandler).Methods("POST")
-	accountRouter.HandleFunc("/otp", account.ValidateOTPHandler).Methods("POST")
-	accountRouter.HandleFunc("/otp/resend", account.ResendOTPHandler).Methods("POST")
+	//accountRouter.HandleFunc("/otp", account.ValidateOTPHandler).Methods("POST")
+	//accountRouter.HandleFunc("/otp/resend", account.ResendOTPHandler).Methods("POST")
 	accountRouter.HandleFunc("/profile", middleware.IsAuthorizedUser(profile.GetProfile)).Methods("GET")
 	accountRouter.HandleFunc("/profile/edit", middleware.IsAuthorizedUser(profile.EditProfile)).Methods("POST")
 

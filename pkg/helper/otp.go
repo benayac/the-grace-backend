@@ -1,12 +1,6 @@
 package helper
 
-import (
-	"crypto/rand"
-	"math/big"
-	"strconv"
-	"time"
-)
-
+/**
 func getRandNum() (string, error) {
 	nBig, e := rand.Int(rand.Reader, big.NewInt(8999))
 	if e != nil {
@@ -14,7 +8,6 @@ func getRandNum() (string, error) {
 	}
 	return strconv.FormatInt(nBig.Int64()+1000, 10), nil
 }
-
 func GenerateOTP(email string) (string, error) {
 	otp, err := getRandNum()
 	if err != nil {
@@ -37,3 +30,4 @@ func ValidateOTP(otp string, email string) (bool, error) {
 	}
 	return true, nil
 }
+*/
