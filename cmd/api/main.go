@@ -5,7 +5,6 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-	"os"
 	"thegrace/pkg"
 	"thegrace/pkg/db"
 	"thegrace/pkg/middleware"
@@ -16,19 +15,11 @@ import (
 )
 
 func init() {
-	profile := os.Getenv("ENVIRONMENT")
-	if profile == "LOCAL" {
-		err := pkg.GetConfigJson()
-		if err != nil {
-			panic(err)
-		}
-	} else if profile == "DOCKER" {
-		err := pkg.GetConfigEnv()
-		if err != nil {
-			panic(err)
-		}
+	err := pkg.GetConfigEnv()
+	if err != nil {
+		panic(err)
 	}
-	err := db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
 	if err != nil {
 		panic(err)
 	}
