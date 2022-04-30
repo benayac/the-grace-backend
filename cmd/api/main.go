@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -30,14 +29,14 @@ func init() {
 func main() {
 	fmt.Println("Running Web Service. . .")
 	r := handleRouter()
-	cors := handlers.CORS(
-		handlers.AllowedHeaders([]string{"Authorization", "authorization"}),
-		handlers.AllowedOrigins([]string{"*"}),
-		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"}),
-		handlers.AllowCredentials(),
-		handlers.IgnoreOptions(),
-	)
-	r.Use(cors)
+	//cors := handlers.CORS(
+	//	handlers.AllowedHeaders([]string{"Authorization", "authorization"}),
+	//	handlers.AllowedOrigins([]string{"*"}),
+	//	handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"}),
+	//	handlers.AllowCredentials(),
+	//	handlers.IgnoreOptions(),
+	//)
+	//r.Use(cors)
 	r.Use(middleware.DefaultHeader)
 	port := os.Getenv("PORT")
 	if port == "" {
