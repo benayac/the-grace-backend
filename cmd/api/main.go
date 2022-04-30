@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -28,25 +29,34 @@ func init() {
 
 func main() {
 	fmt.Println("Running Web Service. . .")
-	r := mux.NewRouter()
-	r = r.PathPrefix("/api/v1").Subrouter()
-	r = handler(r)
+	r := handleRouter()
+	cors := handlers.CORS(
+		handlers.AllowedHeaders([]string{"Authorization", "authorization"}),
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"}),
+		handlers.AllowCredentials(),
+		handlers.IgnoreOptions(),
+	)
+	r.Use(cors)
 	r.Use(middleware.DefaultHeader)
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = ":8080" // Default port if not specified
+		port = "8080" // Default port if not specified
 	}
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
-func handler(r *mux.Router) *mux.Router {
+func handleRouter() *mux.Router {
+	r := mux.NewRouter()
+	r = r.PathPrefix("/api/v1").Subrouter()
+	r.Use(middleware.DefaultHeader)
 	accountRouter := r.PathPrefix("/user").Subrouter()
-	accountRouter.HandleFunc("/register", account.RegisterAccountHandler).Methods("POST")
-	accountRouter.HandleFunc("/login", account.LoginHandler).Methods("POST")
+	accountRouter.HandleFunc("/register", account.RegisterAccountHandler).Methods("POST", "OPTIONS")
+	accountRouter.HandleFunc("/login", account.LoginHandler).Methods("POST", "OPTIONS")
 	//accountRouter.HandleFunc("/otp", account.ValidateOTPHandler).Methods("POST")
 	//accountRouter.HandleFunc("/otp/resend", account.ResendOTPHandler).Methods("POST")
 	accountRouter.HandleFunc("/profile", middleware.IsAuthorizedUser(profile.GetProfile)).Methods("GET")
-	accountRouter.HandleFunc("/profile/edit", middleware.IsAuthorizedUser(profile.EditProfile)).Methods("POST")
+	accountRouter.HandleFunc("/profile/edit", middleware.IsAuthorizedUser(profile.EditProfile)).Methods("POST", "OPTIONS")
 
 	ibadahRouter := r.PathPrefix("/ibadah").Subrouter()
 	ibadahRouter.HandleFunc("/khotbah/latest", ibadah.GetLatestIbadah).Methods("GET")
@@ -55,8 +65,7 @@ func handler(r *mux.Router) *mux.Router {
 	adminRouter := r.PathPrefix("/admin").Subrouter()
 	adminRouter.HandleFunc("/login", admin.LoginAdmin).Methods("POST")
 	adminRouter.HandleFunc("/account/list", middleware.IsAuthorizedAdmin(admin.GetAccountList)).Methods("GET")
-	adminRouter.HandleFunc("/account/edit", middleware.IsAuthorizedAdmin(admin.EditProfile)).Methods("POST")
-	adminRouter.HandleFunc("/khotbah", middleware.IsAuthorizedAdmin(ibadah.AddNewKhotbah)).Methods("POST")
-
+	adminRouter.HandleFunc("/account/edit", middleware.IsAuthorizedAdmin(admin.EditProfile)).Methods("POST", "OPTIONS")
+	adminRouter.HandleFunc("/khotbah", middleware.IsAuthorizedAdmin(ibadah.AddNewKhotbah)).Methods("POST", "OPTIONS")
 	return r
 }

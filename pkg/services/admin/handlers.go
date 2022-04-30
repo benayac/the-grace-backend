@@ -57,7 +57,7 @@ func GetAccountList(w http.ResponseWriter, r *http.Request) {
 	for row.Next() {
 		err = row.Scan(&acc.AccountId, &acc.FirstName, &acc.LastName, &acc.Email, &acc.PhoneNumber, &acc.Gender, &acc.BirthDate, &acc.IsVerified, &acc.Tag)
 		if err != nil {
-			middleware.ReturnResponseWriter(err, w, getAccountListResponse{Message: "Failed to get account list"}, "[ADMIN GET ACCOUNT LIST][ERROR] QUERY ROW DB")
+			middleware.ReturnResponseWriter(err, w, getAccountListResponse{Message: "Failed to get account list"}, "[ADMIN GET ACCOUNT LIST][ERROR] QUERY ROW DB ")
 			return
 		}
 		accountList = append(accountList, acc)

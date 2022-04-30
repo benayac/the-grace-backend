@@ -18,7 +18,7 @@ func ReturnResponseWriter(err error, w http.ResponseWriter, i interface{}, logMs
 		res.Status = false
 		res.Body = i
 		res.Error = err.Error()
-		log.Println(logMsg + err.Error())
+		log.Println(logMsg + " " + err.Error())
 	} else {
 		res.Status = true
 		res.Body = i
