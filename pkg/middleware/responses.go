@@ -7,9 +7,9 @@ import (
 )
 
 type DefaultResponse struct {
-	Status bool        `json:"status"`
-	Error  string      `json:"error"'`
-	Body   interface{} `json:"body"`
+	Status bool        `json:"status,omitempty"`
+	Error  string      `json:"error,omitempty"`
+	Body   interface{} `json:"body,omitempty"`
 }
 
 func ReturnResponseWriter(err error, w http.ResponseWriter, i interface{}, logMsg string) {

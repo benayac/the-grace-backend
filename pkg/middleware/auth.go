@@ -14,6 +14,7 @@ import (
 const (
 	iss       = "the.grace"
 	audUser   = "user"
+	audUsher  = "usher"
 	audAdmin  = "admin"
 	KeyClient = "client"
 )
@@ -25,6 +26,23 @@ func GetJWTUser(client string) (string, error) {
 	claims["authorized"] = true
 	claims[KeyClient] = client
 	claims["aud"] = audUser
+	claims["iss"] = iss
+	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
+
+	tokenString, err := token.SignedString([]byte(pkg.Conf.SigningKey))
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
+func GetJWTUsher(client string) (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+
+	claims["authorized"] = true
+	claims[KeyClient] = client
+	claims["aud"] = audUsher
 	claims["iss"] = iss
 	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 
@@ -59,6 +77,26 @@ func IsAuthorizedUser(endpoint func(http.ResponseWriter, *http.Request)) http.Ha
 			valid, err := verifyAuth(r.Header, audUser)
 			if err != nil {
 				log.Println("[AUTHENTICATION USER][ERROR] PARSING HEADER: ", err.Error())
+				res := DefaultResponse{Status: false, Error: err.Error()}
+				json.NewEncoder(w).Encode(&res)
+			}
+			if valid {
+				endpoint(w, r)
+			}
+		} else {
+			res := DefaultResponse{Status: false, Error: "Invalid authorization"}
+			json.NewEncoder(w).Encode(&res)
+		}
+	}
+}
+
+func IsAuthorizedUsher(endpoint func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println("[AUTHENTICATION USHER][REQUEST]")
+		if r.Header["Authorization"] != nil {
+			valid, err := verifyAuth(r.Header, audUsher)
+			if err != nil {
+				log.Println("[AUTHENTICATION USHER][ERROR] PARSING HEADER: ", err.Error())
 				res := DefaultResponse{Status: false, Error: err.Error()}
 				json.NewEncoder(w).Encode(&res)
 			}

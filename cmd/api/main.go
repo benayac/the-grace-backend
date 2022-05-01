@@ -11,6 +11,7 @@ import (
 	"thegrace/pkg/middleware"
 	"thegrace/pkg/services/account"
 	"thegrace/pkg/services/admin"
+	"thegrace/pkg/services/booking"
 	"thegrace/pkg/services/ibadah"
 	"thegrace/pkg/services/profile"
 )
@@ -29,14 +30,6 @@ func init() {
 func main() {
 	fmt.Println("Running Web Service. . .")
 	r := handleRouter()
-	//cors := handlers.CORS(
-	//	handlers.AllowedHeaders([]string{"Authorization", "authorization"}),
-	//	handlers.AllowedOrigins([]string{"*"}),
-	//	handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"}),
-	//	handlers.AllowCredentials(),
-	//	handlers.IgnoreOptions(),
-	//)
-	//r.Use(cors)
 	r.Use(middleware.DefaultHeader)
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -50,21 +43,30 @@ func handleRouter() *mux.Router {
 	r = r.PathPrefix("/api/v1").Subrouter()
 	r.Use(middleware.DefaultHeader)
 	accountRouter := r.PathPrefix("/user").Subrouter()
-	accountRouter.HandleFunc("/register", account.RegisterAccountHandler).Methods("POST", "OPTIONS")
-	accountRouter.HandleFunc("/login", account.LoginHandler).Methods("POST", "OPTIONS")
-	//accountRouter.HandleFunc("/otp", account.ValidateOTPHandler).Methods("POST")
-	//accountRouter.HandleFunc("/otp/resend", account.ResendOTPHandler).Methods("POST")
+	accountRouter.HandleFunc("/register", account.RegisterAccountHandler).Methods("POST")
+	accountRouter.HandleFunc("/login", account.LoginHandler).Methods("POST")
 	accountRouter.HandleFunc("/profile", middleware.IsAuthorizedUser(profile.GetProfile)).Methods("GET")
 	accountRouter.HandleFunc("/profile/edit", middleware.IsAuthorizedUser(profile.EditProfile)).Methods("POST", "OPTIONS")
 
 	ibadahRouter := r.PathPrefix("/ibadah").Subrouter()
-	ibadahRouter.HandleFunc("/khotbah/latest", ibadah.GetLatestIbadah).Methods("GET")
+	ibadahRouter.HandleFunc("/khotbah/latest", ibadah.GetLatestKhotbah).Methods("GET")
 	ibadahRouter.HandleFunc("/khotbah/list", ibadah.GetListKhotbah).Methods("GET")
+	ibadahRouter.HandleFunc("/khotbah/jadwal", ibadah.GetJadwalIbadahById).Methods("GET")
 
 	adminRouter := r.PathPrefix("/admin").Subrouter()
 	adminRouter.HandleFunc("/login", admin.LoginAdmin).Methods("POST")
 	adminRouter.HandleFunc("/account/list", middleware.IsAuthorizedAdmin(admin.GetAccountList)).Methods("GET")
 	adminRouter.HandleFunc("/account/edit", middleware.IsAuthorizedAdmin(admin.EditProfile)).Methods("POST", "OPTIONS")
 	adminRouter.HandleFunc("/khotbah", middleware.IsAuthorizedAdmin(ibadah.AddNewKhotbah)).Methods("POST", "OPTIONS")
+	adminRouter.HandleFunc("/khotbah/delete", middleware.IsAuthorizedAdmin(ibadah.DeleteKhotbahById)).Methods("GET", "OPTIONS")
+	adminRouter.HandleFunc("/khotbah/jadwal/add", middleware.IsAuthorizedAdmin(ibadah.AddNewJadwalIbadah)).Methods("POST", "OPTIONS")
+
+	bookingRouter := r.PathPrefix("/reservasi").Subrouter()
+	bookingRouter.HandleFunc("/book", middleware.IsAuthorizedUser(booking.AddNewBooking)).Methods("POST", "OPTIONS")
+	bookingRouter.HandleFunc("/book/user", middleware.IsAuthorizedUser(booking.GetBookingsFromBookerId)).Methods("GET", "OPTIONS")
+	bookingRouter.HandleFunc("/book/usher", middleware.IsAuthorizedUsher(booking.GetBookingsFromIbadahId)).Methods("POST", "OPTIONS")
+	bookingRouter.HandleFunc("/scan", middleware.IsAuthorizedUsher(booking.ScanReservation)).Methods("POST", "OPTIONS")
+	bookingRouter.HandleFunc("/change_status", middleware.IsAuthorizedUsher(booking.ChangeBookingStatus)).Methods("POST", "OPTIONS")
+
 	return r
 }

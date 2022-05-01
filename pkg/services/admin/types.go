@@ -13,15 +13,15 @@ const (
 
 type (
 	userProfile struct {
-		AccountId   int       `json:"id"`
-		FirstName   string    `field:"first_name" json:"first_name"`
-		LastName    string    `field:"last_name" json:"last_name"`
-		Email       string    `field:"email" json:"email"`
-		PhoneNumber string    `field:"phone_number" json:"phone_number"`
-		Gender      string    `field:"gender" json:"gender"`
-		BirthDate   time.Time `field:"birth_date" json:"birth_date"`
-		IsVerified  bool      `field:"is_verified" json:"is_verified"`
-		Tag         int       `json:"tag"`
+		AccountId   int       `json:"id,omitempty"`
+		FirstName   string    `field:"first_name" json:"first_name,omitempty"`
+		LastName    string    `field:"last_name" json:"last_name,omitempty"`
+		Email       string    `field:"email" json:"email,omitempty"`
+		PhoneNumber string    `field:"phone_number" json:"phone_number,omitempty"`
+		Gender      string    `field:"gender" json:"gender,omitempty"`
+		BirthDate   time.Time `field:"birth_date" json:"birth_date,omitempty"`
+		IsVerified  bool      `field:"is_verified" json:"is_verified,omitempty"`
+		Tag         int       `json:"tag,omitempty"`
 	}
 
 	adminLoginRequest struct {

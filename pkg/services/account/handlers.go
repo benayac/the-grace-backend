@@ -115,8 +115,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var hash string
+	var tag int
 	row := db.DB.QueryRow(getPasswordUser, login.Email)
-	err = row.Scan(&hash)
+	err = row.Scan(&hash, &tag)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, nil, "[LOGIN][ERROR] SELECT PASSWORD:")
 		return
@@ -130,10 +131,19 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if validation {
 		jwt, err := middleware.GetJWTUser(login.Email)
 		if err != nil {
-			middleware.ReturnResponseWriter(err, w, nil, "[LOGIN][ERROR] GET JWT AUTH:")
+			middleware.ReturnResponseWriter(err, w, loginResponse{Message: "Login Failed"}, "[LOGIN][ERROR] GET JWT USER AUTH: "+err.Error())
 			return
 		}
-		middleware.ReturnResponseWriter(nil, w, loginResponse{Message: "Login Success", Authentication: jwt}, "[LOGIN][SUCCESS]")
+		if tag == accountTypeUser {
+			middleware.ReturnResponseWriter(nil, w, loginResponse{Message: "Login Success", AccountType: tag, Authentication: authenticationStruct{UserJwt: jwt}}, "[LOGIN][SUCCESS]")
+		} else if tag == accountTypeUsher {
+			usherJwt, err := middleware.GetJWTUsher(login.Email)
+			if err != nil {
+				middleware.ReturnResponseWriter(err, w, loginResponse{Message: "Login Failed"}, "[LOGIN][ERROR] GET JWT USHER AUTH: "+err.Error())
+				return
+			}
+			middleware.ReturnResponseWriter(nil, w, loginResponse{Message: "Login Success", AccountType: tag, Authentication: authenticationStruct{UserJwt: jwt, UsherJwt: usherJwt}}, "[LOGIN][SUCCESS]")
+		}
 	} else {
 		middleware.ReturnResponseWriter(nil, w, loginResponse{Message: "Credential Invalid"}, "[LOGIN][SUCCESS]")
 	}
