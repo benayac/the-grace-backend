@@ -11,7 +11,7 @@ const (
 type (
 	getProfileResponse struct {
 		Message string  `json:"message"`
-		Profile Profile `json:"Profile"`
+		Profile Profile `json:"profile"`
 	}
 
 	Profile struct {
