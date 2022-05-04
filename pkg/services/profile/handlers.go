@@ -18,7 +18,7 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	var profile Profile
 	row := db.DB.QueryRow(GetMyProfile, email)
-	err = row.Scan(&profile.FirstName, &profile.LastName, &profile.Email, &profile.PhoneNumber, &profile.Gender, &profile.BirthDate, &profile.IsVerified)
+	err = row.Scan(&profile.Id, &profile.FirstName, &profile.LastName, &profile.Email, &profile.PhoneNumber, &profile.Gender, &profile.BirthDate, &profile.IsVerified)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, nil, "[GET PROFILE][ERROR] SELECT PROFILE:")
 		return

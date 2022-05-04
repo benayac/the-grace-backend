@@ -36,6 +36,11 @@ type createBookingResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
+type scanBookingResponse struct {
+	Message string `json:"message,omitempty"`
+	Name    string `json:"name,omitempty"`
+}
+
 type getBookingResponse struct {
 	Message     string         `json:"message,omitempty"`
 	BookingList []bookingsData `json:"booking_list,omitempty"`

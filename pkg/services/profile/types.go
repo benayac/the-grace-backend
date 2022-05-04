@@ -3,7 +3,7 @@ package profile
 import "time"
 
 const (
-	GetMyProfile   = `SELECT first_name, last_name, email, phone_number, gender, birth_date, is_verified FROM accounts where email = $1`
+	GetMyProfile   = `SELECT id, first_name, last_name, email, phone_number, gender, birth_date, is_verified FROM accounts where email = $1`
 	GetMyProfileId = `SELECT id FROM accounts WHERE email = $1`
 	editMyProfile  = `UPDATE accounts SET first_name = $1, last_name = $2, email = $3, phone_number = $4, gender = $5, birth_date = $6, updated_at = now() WHERE email = $7`
 )

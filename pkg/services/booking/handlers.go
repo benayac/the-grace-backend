@@ -129,23 +129,23 @@ func ScanReservation(w http.ResponseWriter, r *http.Request) {
 	var req scanReservationRequest
 	err := decoder.Decode(&req)
 	if err != nil {
-		middleware.ReturnResponseWriter(err, w, createBookingResponse{Message: "Failed to scan reservation."}, "[SCAN RESERVATION][ERROR] FAILED TO DECODE: ")
+		middleware.ReturnResponseWriter(err, w, scanBookingResponse{Message: "Failed to scan reservation."}, "[SCAN RESERVATION][ERROR] FAILED TO DECODE: ")
 		return
 	}
 
 	bookingData, err := decryptBookingData(req.EncryptedData)
 	if err != nil {
-		middleware.ReturnResponseWriter(err, w, createBookingResponse{Message: "Failed to scan reservation."}, "[SCAN RESERVATION][ERROR] FAILED TO DECRYPT BOOKING DATA: ")
+		middleware.ReturnResponseWriter(err, w, scanBookingResponse{Message: "Failed to scan reservation."}, "[SCAN RESERVATION][ERROR] FAILED TO DECRYPT BOOKING DATA: ")
 		return
 	}
 
 	_, err = db.DB.Exec(updateBookingStatusFromBookingId, bookingData.Id)
 	if err != nil {
-		middleware.ReturnResponseWriter(err, w, createBookingResponse{Message: "Failed to scan reservation."}, "[SCAN RESERVATION][ERROR] FAILED TO UPDATE STATUS: ")
+		middleware.ReturnResponseWriter(err, w, scanBookingResponse{Message: "Failed to scan reservation."}, "[SCAN RESERVATION][ERROR] FAILED TO UPDATE STATUS: ")
 		return
 	}
 
-	middleware.ReturnResponseWriter(nil, w, createBookingResponse{Message: "Success to scan reservation."}, "[SCAN RESERVATION][SUCCESS]")
+	middleware.ReturnResponseWriter(nil, w, scanBookingResponse{Message: "Success to scan reservation.", Name: bookingData.Name}, "[SCAN RESERVATION][SUCCESS]")
 }
 
 func ChangeBookingStatus(w http.ResponseWriter, r *http.Request) {
