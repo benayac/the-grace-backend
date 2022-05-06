@@ -52,6 +52,7 @@ func handleRouter() *mux.Router {
 	ibadahRouter.HandleFunc("/khotbah/latest", ibadah.GetLatestKhotbah).Methods("GET", "OPTIONS")
 	ibadahRouter.HandleFunc("/khotbah/list", ibadah.GetListKhotbah).Methods("GET", "OPTIONS")
 	ibadahRouter.HandleFunc("/khotbah/jadwal", ibadah.GetJadwalIbadahById).Methods("GET", "OPTIONS")
+	ibadahRouter.HandleFunc("/khotbah/jadwal/list", ibadah.GetJadwalIbadahList).Methods("GET", "OPTIONS")
 
 	adminRouter := r.PathPrefix("/admin").Subrouter()
 	adminRouter.HandleFunc("/login", admin.LoginAdmin).Methods("POST", "OPTIONS")

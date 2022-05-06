@@ -3,7 +3,7 @@ package middleware
 import (
 	"encoding/json"
 	"errors"
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"log"
 	"net/http"
 	"strings"
@@ -27,7 +27,7 @@ func GetJWTUser(client string) (string, error) {
 	claims[KeyClient] = client
 	claims["aud"] = audUser
 	claims["iss"] = iss
-	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 24 * 90).Unix()
 
 	tokenString, err := token.SignedString([]byte(pkg.Conf.SigningKey))
 	if err != nil {
@@ -44,7 +44,7 @@ func GetJWTUsher(client string) (string, error) {
 	claims[KeyClient] = client
 	claims["aud"] = audUsher
 	claims["iss"] = iss
-	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 24 * 90).Unix()
 
 	tokenString, err := token.SignedString([]byte(pkg.Conf.SigningKey))
 	if err != nil {
@@ -61,7 +61,7 @@ func GetJWTAdmin(client string) (string, error) {
 	claims[KeyClient] = client
 	claims["aud"] = audAdmin
 	claims["iss"] = iss
-	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 24 * 90).Unix()
 
 	tokenString, err := token.SignedString([]byte(pkg.Conf.SigningKey))
 	if err != nil {

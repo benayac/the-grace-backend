@@ -114,6 +114,26 @@ func AddNewJadwalIbadah(w http.ResponseWriter, r *http.Request) {
 	middleware.ReturnResponseWriter(nil, w, addKhotbahResponse{Message: "Success to add Ibadah"}, "[ADD IBADAH][SUCCESS]")
 }
 
+func GetJadwalIbadahList(w http.ResponseWriter, r *http.Request) {
+	log.Println("[GET IBADAH LIST][REQUEST]")
+	row, err := db.DB.Query(GetIbadahList)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, getIbadahListResponse{Message: "Failed to get ibadah list."}, "[GET IBADAH LIST][ERROR] QUERY DB")
+		return
+	}
+	var ibadahList []Ibadah
+	if row.Next() {
+		var ibadah Ibadah
+		err = row.Scan(&ibadah.Id, &ibadah.Title, &ibadah.Location, &ibadah.IbadahDate, &ibadah.MaxCapacity, &ibadah.FilledCapacity)
+		if err != nil {
+			middleware.ReturnResponseWriter(err, w, getIbadahListResponse{Message: "Failed to get ibadah list."}, "[GET IBADAH LIST][ERROR] SCAN QUERY DB")
+			return
+		}
+		ibadahList = append(ibadahList, ibadah)
+	}
+	middleware.ReturnResponseWriter(nil, w, getIbadahListResponse{Ibadah: ibadahList, Message: "Success to get ibadah list."}, "[GET IBADAH LIST][SUCCESS]")
+}
+
 func GetJadwalIbadahById(w http.ResponseWriter, r *http.Request) {
 	log.Println("[GET IBADAH BY ID][REQUEST]")
 	id := r.FormValue("id")

@@ -7,7 +7,7 @@ import (
 )
 
 type DefaultResponse struct {
-	Status bool        `json:"status,omitempty"`
+	Status bool        `json:"status"`
 	Error  string      `json:"error,omitempty"`
 	Body   interface{} `json:"body,omitempty"`
 }

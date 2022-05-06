@@ -8,6 +8,7 @@ const (
 	deleteKhotbahById     = `DELETE FROM khotbah WHERE id = $1`
 	insertIbadah          = `INSERT INTO Ibadah (ibadah_title, location, date, max_capacity) VALUES ($1, $2, $3, $4)`
 	GetIbadahById         = `SELECT * FROM Ibadah WHERE id = $1`
+	GetIbadahList         = `SELECT * FROM Ibadah WHERE date >= now()`
 	UpdateIbadahFilled    = `UPDATE ibadah set filled_capacity = $1 WHERE id = $2`
 )
 
