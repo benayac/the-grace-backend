@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"thegrace/pkg"
 	"thegrace/pkg/db"
 	"thegrace/pkg/middleware"
 )
@@ -19,6 +20,14 @@ func AddNewKhotbah(w http.ResponseWriter, r *http.Request) {
 		middleware.ReturnResponseWriter(err, w, nil, "[ADD KHOTBAH][ERROR] DECODE REQUEST:")
 		return
 	}
+
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, addKhotbahResponse{Message: "Failed to add khotbah"}, "[ADD KHOTBAH][ERROR] FAILED CONNECTION TO DB:")
+		return
+	}
+
 	_, err = db.DB.Exec(insertKhotbah, req.Thumbnail, req.Title, req.Link, req.PendetaName, req.IbadahDate, req.LinkWarta)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, addKhotbahResponse{Message: "Failed to add khotbah"}, "[ADD KHOTBAH][ERROR] INSERT TO DB:")
@@ -31,8 +40,16 @@ func GetLatestKhotbah(w http.ResponseWriter, r *http.Request) {
 	log.Println("[GET LATEST KHOTBAH][REQUEST]")
 
 	var khotbah khotbah
+
+	defer db.DB.Close()
+	err := db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, getKhotbahListResponse{Message: "Failed to get khotbah latest"}, "[GET LATEST KHOTBAH][ERROR] FAILED CONNECTION TO DB:")
+		return
+	}
+
 	row := db.DB.QueryRow(getKhotbahLatest)
-	err := row.Scan(&khotbah.Id, &khotbah.Thumbnail, &khotbah.Title, &khotbah.Link, &khotbah.PendetaName, &khotbah.IbadahDate, &khotbah.LinkWarta)
+	err = row.Scan(&khotbah.Id, &khotbah.Thumbnail, &khotbah.Title, &khotbah.Link, &khotbah.PendetaName, &khotbah.IbadahDate, &khotbah.LinkWarta)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, getKhotbahListResponse{Message: "Failed to get khotbah latest"}, "[GET LATEST KHOTBAH][ERROR] QUERY DATA DB:")
 		return
@@ -46,6 +63,14 @@ func GetListKhotbah(w http.ResponseWriter, r *http.Request) {
 	limit := r.FormValue("limit")
 	var row *sql.Rows
 	var err error
+
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, getKhotbahListResponse{Message: "Failed to get khotbah list"}, "[GET LIST KHOTBAH][ERROR] FAILED CONNECTION TO DB:")
+		return
+	}
+
 	if limit != "" {
 		row, err = db.DB.Query(getKhotbahListLimited, limit)
 	} else {
@@ -73,6 +98,13 @@ func DeleteKhotbahById(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
 	if id == "" {
 		middleware.ReturnResponseWriter(nil, w, addKhotbahResponse{Message: "No Id Param Found."}, "[DELETE KHOTBAH BY ID][ERROR] NO ID PARAM FOUND ")
+		return
+	}
+
+	defer db.DB.Close()
+	err := db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, addKhotbahResponse{Message: "Error delete khotbah."}, "[DELETE KHOTBAH BY ID][ERROR] FAILED CONNECTION DB")
 		return
 	}
 
@@ -106,6 +138,14 @@ func AddNewJadwalIbadah(w http.ResponseWriter, r *http.Request) {
 		middleware.ReturnResponseWriter(err, w, nil, "[ADD IBADAH][ERROR] DECODE REQUEST:")
 		return
 	}
+
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, addKhotbahResponse{Message: "Failed to add Ibadah"}, "[ADD IBADAH][ERROR] FAILED CONNECTION TO DB:")
+		return
+	}
+
 	_, err = db.DB.Exec(insertIbadah, req.Title, req.Location, req.IbadahDate, req.MaxCapacity)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, addKhotbahResponse{Message: "Failed to add Ibadah"}, "[ADD IBADAH][ERROR] INSERT TO DB:")
@@ -116,6 +156,14 @@ func AddNewJadwalIbadah(w http.ResponseWriter, r *http.Request) {
 
 func GetJadwalIbadahList(w http.ResponseWriter, r *http.Request) {
 	log.Println("[GET IBADAH LIST][REQUEST]")
+
+	defer db.DB.Close()
+	err := db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, getIbadahListResponse{Message: "Failed to get ibadah list."}, "[GET IBADAH LIST][ERROR] FAILED CONNECTION DB")
+		return
+	}
+
 	row, err := db.DB.Query(GetIbadahList)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, getIbadahListResponse{Message: "Failed to get ibadah list."}, "[GET IBADAH LIST][ERROR] QUERY DB")
@@ -143,8 +191,16 @@ func GetJadwalIbadahById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var ibadah Ibadah
+
+	defer db.DB.Close()
+	err := db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, getIbadahResponse{Message: "Failed to get Ibadah latest"}, "[GET IBADAH BY ID][ERROR] FAILED CONNECTION TO DB:")
+		return
+	}
+
 	row := db.DB.QueryRow(GetIbadahById, id)
-	err := row.Scan(&ibadah.Id, &ibadah.Title, &ibadah.Location, &ibadah.IbadahDate, &ibadah.MaxCapacity, &ibadah.FilledCapacity)
+	err = row.Scan(&ibadah.Id, &ibadah.Title, &ibadah.Location, &ibadah.IbadahDate, &ibadah.MaxCapacity, &ibadah.FilledCapacity)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, getIbadahResponse{Message: "Failed to get Ibadah latest"}, "[GET IBADAH BY ID][ERROR] QUERY DATA DB:")
 		return

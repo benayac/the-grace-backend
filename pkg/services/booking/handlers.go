@@ -25,6 +25,14 @@ func AddNewBooking(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var ib ibadah.Ibadah
+
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, createBookingResponse{Message: "Failed to create booking"}, "[ADD BOOKING][ERROR] CONNECTION TO DB: ")
+		return
+	}
+
 	row := db.DB.QueryRow(ibadah.GetIbadahById, req.IbadahId)
 	err = row.Scan(&ib.Id, &ib.Title, &ib.Location, &ib.IbadahDate, &ib.MaxCapacity, &ib.FilledCapacity)
 	if err != nil {
@@ -76,6 +84,13 @@ func GetBookingsFromBookerId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var p profile.Profile
+
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, getBookingResponse{Message: "Failed to get booking from booker id."}, "[GET BOOKINGS FROM BOOKER ID][ERROR] FAILED CONNECTION TO DB: ")
+		return
+	}
 	row := db.DB.QueryRow(profile.GetMyProfileId, email)
 	err = row.Scan(&p.Id)
 	if err != nil {
@@ -105,6 +120,13 @@ func GetBookingsFromIbadahId(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&req)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, getBookingResponse{Message: "Failed to get booking from ibadah id."}, "[GET BOOKINGS FROM IBADAH ID][ERROR] failed decode request: ")
+		return
+	}
+
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, getBookingResponse{Message: "Failed to get booking from ibadah id."}, "[GET BOOKINGS FROM IBADAH ID][ERROR] FAILED CONNECTION TO DB: ")
 		return
 	}
 
@@ -139,6 +161,13 @@ func ScanReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, scanBookingResponse{Message: "Failed to scan reservation."}, "[SCAN RESERVATION][ERROR] FAILED CONNECTION TO DB: ")
+		return
+	}
+
 	_, err = db.DB.Exec(updateBookingStatusFromBookingId, bookingData.Id)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, scanBookingResponse{Message: "Failed to scan reservation."}, "[SCAN RESERVATION][ERROR] FAILED TO UPDATE STATUS: ")
@@ -155,6 +184,13 @@ func ChangeBookingStatus(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&req)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, createBookingResponse{Message: "Failed to change booking status."}, "[CHANGE BOOKING STATUS][ERROR] FAILED TO DECODE: ")
+		return
+	}
+
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, createBookingResponse{Message: "Failed to change booking status."}, "[CHANGE BOOKING STATUS][ERROR] FAILED CONNECTION TO DB: ")
 		return
 	}
 

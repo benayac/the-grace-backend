@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"thegrace/pkg"
 	"thegrace/pkg/db"
 	"thegrace/pkg/helper"
 	"thegrace/pkg/middleware"
@@ -20,6 +21,13 @@ func LoginAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var hash string
+
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, nil, "[LOGIN ADMIN][ERROR] CONNECT TO DB:")
+		return
+	}
 	row := db.DB.QueryRow(getPasswordAdmin, login.Username)
 	err = row.Scan(&hash)
 	if err != nil {
@@ -46,6 +54,13 @@ func LoginAdmin(w http.ResponseWriter, r *http.Request) {
 
 func GetAccountList(w http.ResponseWriter, r *http.Request) {
 	log.Println("[ADMIN GET ACCOUNT LIST][REQUEST]")
+
+	defer db.DB.Close()
+	err := db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, getAccountListResponse{Message: "Failed to get account list"}, "[ADMIN GET ACCOUNT LIST][ERROR] CONNECT TO DB:")
+		return
+	}
 	row, err := db.DB.Query(getAccountList)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, getAccountListResponse{Message: "Failed to get account list"}, "[ADMIN GET ACCOUNT LIST][ERROR] QUERY DB")
@@ -75,6 +90,12 @@ func EditProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, editProfileResponse{Message: "Failed to edit profile."}, "[ADMIN EDIT PROFILE][ERROR] CONNECTION TO DB:")
+		return
+	}
 	_, err = db.DB.Exec(editUserProfile, req.FirstName, req.LastName, req.Email, req.PhoneNumber, req.Gender, req.BirthDate, req.IsVerified, req.Tag, req.AccountId)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, editProfileResponse{Message: "Failed to edit profile."}, "[ADMIN EDIT PROFILE][ERROR] UPDATE DB:")

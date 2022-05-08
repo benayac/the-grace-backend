@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"thegrace/pkg"
 	"thegrace/pkg/db"
 	"thegrace/pkg/middleware"
 )
@@ -17,6 +18,14 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var profile Profile
+
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, nil, "[GET PROFILE][ERROR] FAILED CONNECTION TO DB:")
+		return
+	}
+
 	row := db.DB.QueryRow(GetMyProfile, email)
 	err = row.Scan(&profile.Id, &profile.FirstName, &profile.LastName, &profile.Email, &profile.PhoneNumber, &profile.Gender, &profile.BirthDate, &profile.IsVerified)
 	if err != nil {
@@ -41,6 +50,13 @@ func EditProfile(w http.ResponseWriter, r *http.Request) {
 	err = decoder.Decode(&req)
 	if err != nil {
 		middleware.ReturnResponseWriter(err, w, editProfileResponse{Message: "Failed to edit Profile."}, "[EDIT PROFILE][ERROR] DECODE REQUEST:")
+		return
+	}
+
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, editProfileResponse{Message: "Failed to edit Profile."}, "[EDIT PROFILE][ERROR] FAILED CONNECTION TO DB:")
 		return
 	}
 

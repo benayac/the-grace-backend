@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"thegrace/pkg"
 	"thegrace/pkg/db"
 	"thegrace/pkg/helper"
 	"thegrace/pkg/middleware"
@@ -25,6 +26,12 @@ func RegisterAccountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	req.Password = hashedPass
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, registerResponse{Message: "Failed to register"}, "[REGISTER ACCOUNT][ERROR] CONNECTION TO DB:")
+		return
+	}
 
 	_, err = db.DB.Exec(insertAccount, req.FirstName, req.LastName, req.Email, req.Password,
 		req.PhoneNumber, req.Gender, req.BirthDate)
@@ -116,15 +123,22 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var hash string
 	var tag int
+
+	defer db.DB.Close()
+	err = db.GetConnection(pkg.Conf.DbHost, pkg.Conf.DbPort, pkg.Conf.DbUsername, pkg.Conf.DbPassword, pkg.Conf.DbName)
+	if err != nil {
+		middleware.ReturnResponseWriter(err, w, loginResponse{Message: "Login Failed"}, "[LOGIN][ERROR] FAILED TO CONNECT DB")
+		return
+	}
 	row := db.DB.QueryRow(getPasswordUser, login.Email)
 	err = row.Scan(&hash, &tag)
 	if err != nil {
-		middleware.ReturnResponseWriter(err, w, nil, "[LOGIN][ERROR] SELECT PASSWORD:")
+		middleware.ReturnResponseWriter(err, w, loginResponse{Message: "Login Failed"}, "[LOGIN][ERROR] SELECT PASSWORD:")
 		return
 	}
 	validation, err := helper.CompareHashAndPassword(hash, []byte(login.Password))
 	if err != nil {
-		middleware.ReturnResponseWriter(err, w, nil, "[LOGIN][ERROR] COMPARE HASH PASSWORD:")
+		middleware.ReturnResponseWriter(err, w, loginResponse{Message: "Login Failed"}, "[LOGIN][ERROR] COMPARE HASH PASSWORD:")
 		return
 	}
 

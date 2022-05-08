@@ -4,11 +4,23 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"time"
 )
 
 var DB *sql.DB
 
+func SetStats() {
+	DB.SetMaxOpenConns(20)
+	DB.SetMaxIdleConns(2)
+	DB.SetConnMaxIdleTime(time.Minute * 3)
+	DB.SetConnMaxLifetime(time.Minute * 3)
+}
+
 func GetConnection(host string, port int, user, password, dbName string) error {
+	if DB.Ping() == nil {
+		return nil
+	}
+
 	if password == "" {
 		password = `''`
 	}
@@ -25,5 +37,6 @@ func GetConnection(host string, port int, user, password, dbName string) error {
 		return err
 	}
 	DB = database
+	SetStats()
 	return nil
 }
