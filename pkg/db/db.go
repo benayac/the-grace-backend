@@ -17,8 +17,10 @@ func SetStats() {
 }
 
 func GetConnection(host string, port int, user, password, dbName string) error {
-	if DB.Ping() == nil {
-		return nil
+	if DB != nil {
+		if DB.Ping() == nil {
+			return nil
+		}
 	}
 
 	if password == "" {
